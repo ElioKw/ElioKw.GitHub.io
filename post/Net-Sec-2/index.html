@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="description" content="一、暴力破解
+1、概述
+​ 「暴力破解」是一攻擊具手段，在web攻擊中，一般會使用這種手段對應用系統的認證信息進行獲取。其過程就是使用大量的認證信息在認證接口進行嘗試登錄，直到得到正確的結果。為了提高效率，暴力破解一般會使用帶有字典的工具來..." />
+    <meta name="keywords" content="Net-Security" />
+    <link rel="stylesheet" href="https://eliokw.github.io/media/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://eliokw.github.io/styles/main.css">
+    <!-- 代码渲染风格css -->
+    
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/rainbow.min.css">
+    
+    <!-- 代码高亮插件 -->
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+    <!-- 代码复制插件 -->
+    <script src="https://cdn.jsdelivr.net/gh/850552586/ericamcdn@0.1/js/clipboard.min.js"></script>
+    <!-- live2d插件 -->
+    <link rel="stylesheet" href="https://eliokw.github.io/media/css/live2d.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.13.1/css/all.min.css" rel="stylesheet">
+    <!-- 数学公式 -->
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css"
+        integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js"
+        integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous">
+        </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js"
+        integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous">
+        </script>
+    <script>
+        renderMathInElement(document.body, {
+            delimiters: [{
+                left: "$$",
+                right: "$$",
+                display: true
+            },
+            {
+                left: "$",
+                right: "$",
+                display: false
+            }
+            ]
+        });
+    </script>
+    
+    <title>🖥️Web安全 - 常見漏洞</title>
+
+    <!-- 大纲索引css调整 -->
+    
+    <style>
+        .markdownIt-TOC {
+            margin-left: 28%;
+            padding-left: 2px;
+            width: 80%;
+        }
+
+        .markdownIt-TOC li {
+            padding-left: 8%;
+        }
+    </style>
+    
+</head>
+
+<body>
+    <div id="landlord">
+        <div class="message" style="opacity:0"></div>
+        <canvas id="live2d" width="240" height="250" class="live2d"></canvas>
+    </div>
+    <div id="domainname" style="display:none">https://eliokw.github.io</div>
+    <div id="content">
+        <div>
+            <!----------- 移动端导航栏👇 ----------------->
+            <div id="bar">
+                <style>
+  .navmobile {
+    z-index: 15;
+    max-height: 40vh;
+    overflow-y: scroll;
+    overflow-x: hidden;
+  }
+
+  @media screen and (max-width: 1200px) {
+    .navbar {
+      max-width: 100vw;
+    }
+  }
+
+  @media screen and (max-width:1200px) and (min-width: 768px) {
+    @media (min-width: 768px) {
+      .navbar-nav {
+        float: right;
+        margin: 0;
+      }
+    }
+  }
+
+  @media screen and (max-width:768px) {
+    .mbapspan {
+      padding: 0;
+    }
+  }
+</style>
+<div class="pjaxloading"  onclick="pjaxloadingClose()">
+  <div class="loadingbackground"></div>
+  <div id="loading">
+    <div class="loading">
+    </div>
+  </div>
+</div>
+<nav class="navbar navbar-inverse navbar-fixed-top navmobile">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#barmenu"
+        aria-expanded="false" id="barbutton">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a data-pjax class="navbar-brand" style="color:white" href="https://eliokw.github.io">𝔼𝕝𝕚𝕠.𝕂𝕨&nbsp;&nbsp;|</a>
+      <span class="navbar-brand mbapspan"><i id="mbaplayer" class="fa fa-play-circle-o" aria-hidden="true"
+          style="font-size: 28px;top: 12px;position: absolute;" onclick="aplayerPlay();"></i></span>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="barmenu">
+      <ul class="nav navbar-nav">
+        
+        
+        <li>
+          <a data-pjax href="/" style="color:white">
+            🏠𝐻𝑜𝑚𝑒 𝑃𝑎𝑔𝑒
+          </a>
+        </li>
+        
+        
+        
+        <li>
+          <a data-pjax href="/archives" style="color:white">
+            📑𝐴𝑟𝑐ℎ𝑖𝑣𝑒𝑠
+          </a>
+        </li>
+        
+        
+        
+        <li>
+          <a data-pjax href="/tags" style="color:white">
+            🏷️ 𝑇𝑎𝑔𝑠
+          </a>
+        </li>
+        
+        
+        
+        <li>
+          <a data-pjax href="http://ElioKw.tk" style="color:white">
+            🌏𝑂𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝐷𝑒𝑠𝑘𝑡𝑜𝑝
+          </a>
+        </li>
+        
+        
+        
+        
+          
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+
+  <!-- 引入jQuery核心js文件 -->
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.min.js"></script>
+  <script>
+    let btstate = false;
+    var bt = $("#barbutton");
+    var bm = $("#barmenu");
+    bt.click(function () {
+      dropdown();
+    })
+    function dropdown() {
+      console.log(btstate);
+      //下拉
+      if (btstate == false) {
+        bt.removeClass("collapsed");
+        bt.attr("aria-expanded", "true");
+        bm.attr("aria-expanded", "true")
+        bm.fadeIn(700);
+        btstate = true;
+      }
+      else {
+        bt.addClass("collapsed");
+        bt.attr("aria-expanded", "false");
+        bm.removeClass("in");
+        bm.hide();
+        bm.attr("aria-expanded", "false");
+        btstate = false;
+      }
+    }
+  </script> 
+            </div>
+            <!----------- 移动端导航栏👆 ----------------->
+
+            <!--------------- pc端菜单栏👇 ---------------->
+            <div class="side"><head>
+    <link rel="stylesheet" href="https://eliokw.github.io/media/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://eliokw.github.io/styles/main.css">
+    
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/styles/rainbow.min.css">
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.1/build/highlight.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/850552586/ericamcdn@0.1/js/clipboard.min.js"></script>
+    <link rel="stylesheet" href="https://eliokw.github.io/media/css/live2d.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js"></script>
+    <!-- 最新版本的 Bootstrap 核心 CSS 文件 -->
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.13.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- fancybox -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+    <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+
+
+    <!--------- 数学公式👇---- -->
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.css"
+        integrity="sha384-9tPv11A+glH/on/wEu99NVwDPwkMQESOocs/ZGXPoIiLE8MU/qkqUcZ3zzL+6DuH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/katex.min.js"
+        integrity="sha384-U8Vrjwb8fuHMt6ewaCy8uqeUXv4oitYACKdB0VziCerzt011iQ/0TqlSlv8MReCm" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.10.0-beta/dist/contrib/auto-render.min.js"
+        integrity="sha384-aGfk5kvhIq5x1x5YdvCp4upKZYnA8ckafviDpmWEKp4afOZEqOli7gqSnh8I6enH" crossorigin="anonymous">
+    </script>
+    <script>
+        renderMathInElement(document.body, {
+            delimiters: [{
+                    left: "$$",
+                    right: "$$",
+                    display: true
+                },
+                {
+                    left: "$",
+                    right: "$",
+                    display: false
+                }
+            ]
+        });
+    </script>
+    
+    <!--------- 数学公式👆----------------- -->
+    <!--------- daovocie功能👇 ------------------->
+    
+    <!--------- daovocie功能👆 ------------------->
+    <!-- -----------------twikoo评论系统引入👇 --------->
+    <script src="https://cdn.jsdelivr.net/npm/twikoo@1.3.1/dist/twikoo.all.min.js"></script>
+    <!-- -----------------twikoo评论系统引入👆 --------->
+    <!---------------- leancloud api 功能依赖引入👇 -------->
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@3.13.0/dist/av-min.js"></script>
+    <!---------------- leancloud api 功能依赖引入👆 -------->
+    <!------------------ valine评论系统引入👇 ------------------>
+    <script src="https://eliokw.github.io/media/js/valine.min.js"></script>
+    <!------------------ valine评论系统引入👆 ------------------>
+    <!---------------- 今日诗词api功能依赖👇 ----------------------->
+    <script src="https://sdk.jinrishici.com/v2/browser/jinrishici.js" charset="utf-8"></script>
+    <!---------------- 今日诗词api功能依赖👆 ----------------------->
+    <!---------------- 今日诗词api功能依赖👇 ----------------------->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/ispeak-bber/ispeak-bber.min.js" charset="utf-8"></script>
+    <!---------------- 哔哔功能依赖👆 ----------------------->
+
+
+</head>
+
+<style>
+    body {
+        overflow-x: hidden;
+        height: 100vh;
+        overflow-y: scroll;
+        cursor: url("https://eliokw.github.io/media/images/mouse_cursor.png"), auto
+    }
+</style>
+
+<body>
+    <!--=------ 页面加载动态画面👇 --------------->
+    <div class="pjaxloading" onclick="pjaxloadingClose()">
+        <div class="loadingbackground"></div>
+        <div id="loading-aname">
+            <div class="loading-aname">
+            </div>
+        </div>
+    </div>
+    <!--=------ 页面加载动态画面👆 --------------->
+
+    <!--------------- 左侧菜单栏👇 ------------------------>
+    
+    <div id=side>
+        <div class="r_m_div">
+            <a onclick="showAaplayer()"><i style="font-size: 20px;"><img
+                        src='https://eliokw.github.io/media/images/music.png' alt="音乐播放器" class="musicbtn"></i></a>
+        </div>
+        <div class="avatar-border">
+            <img src="https://eliokw.github.io/images/avatar.png?v=1666275173426" class="avatar">
+        </div>
+        <div class="sitename">𝔼𝕝𝕚𝕠.𝕂𝕨</div>
+        <span class="description" data-text='["𝔅𝔢𝔩𝔦𝔢𝔣"]'>&nbsp;</span>
+        <div class="siteinfocontainer">
+            <span class="siteinfo">文章</span>
+            <span class="siteinfo">标签</span>
+        </div>
+        <div class="siteinfocontainer">
+            <span class="siteinfo" id="siteinfo-postsnum"></span>
+            <span class="siteinfo">3</span>
+        </div>
+        
+        <div class="search">
+            <!-- <input type="text" class="search-input" placeholder="标题搜索(●'◡'●)" /> -->
+            <input type="text" class="search-input" placeholder="         標題搜尋  ⚆_⚆ つ♡">
+            <div class="search-results"></div>
+        </div>
+        
+    <div class="share-button">
+        <span>聯係我  💁‍♂️</span>
+        
+        <a href="https://github.com/ElioKw" target="_blank"><i style="font-size: 20px;"><img class="icon"
+                    src="https://eliokw.github.io/media/images/github.png" alt=""></i></a>
+        
+        
+        
+        <a href="https://www.instagram.com/elio_kw" target="_blank"><i style="font-size: 20px;"><img class="icon"
+                    src="https://eliokw.github.io/media/images/zh.png" alt=""></i></a>
+        
+        
+        <a href="https://twitter.com/Elio_Kw" target="_blank"><i style="font-size: 20px;"><img class="icon"
+                    src="https://eliokw.github.io/media/images/bilibili.png" alt=""></i></a>
+        
+        
+        
+        <a href="http://ElioKw.tk" target="_blank"><i style="font-size: 20px;"><img class="icon"
+                    src="https://eliokw.github.io/media/images/weibos.png" alt=""></i></a>
+        
+        
+        
+        <a href="https://s1.ax1x.com/2022/10/05/xlgVTs.jpg" target="_blank"><i style="font-size: 20px;"><img class="icon"
+                    src="https://eliokw.github.io/media/images/steam.png" alt=""></i></a>
+        
+    </div>
+    <div id="qq" style="display:none"></div>
+    <!------------ 加载菜单按钮👇 ------------------------->
+    <div class="menucontainer">
+        
+        
+        <div class="mchocie description">
+            <a data-pjax href="/" class="menubutton" style="margin-right: 15px;">
+                <i><img class="icon menuicon" src="" alt="🏠𝐻𝑜𝑚𝑒 𝑃𝑎𝑔𝑒"></i>&nbsp;<span
+                    data-text="🏠𝐻𝑜𝑚𝑒 𝑃𝑎𝑔𝑒">🏠𝐻𝑜𝑚𝑒 𝑃𝑎𝑔𝑒</span>
+            </a>
+        </div>
+        
+        
+        
+        <div class="mchocie description">
+            <a data-pjax href="/archives" class="menubutton" style="margin-right: 15px;">
+                <i><img class="icon menuicon" src="" alt="📑𝐴𝑟𝑐ℎ𝑖𝑣𝑒𝑠"></i>&nbsp;<span
+                    data-text="📑𝐴𝑟𝑐ℎ𝑖𝑣𝑒𝑠">📑𝐴𝑟𝑐ℎ𝑖𝑣𝑒𝑠</span>
+            </a>
+        </div>
+        
+        
+        
+        <div class="mchocie description">
+            <a data-pjax href="/tags" class="menubutton" style="margin-right: 15px;">
+                <i><img class="icon menuicon" src="" alt="🏷️ 𝑇𝑎𝑔𝑠"></i>&nbsp;<span
+                    data-text="🏷️ 𝑇𝑎𝑔𝑠">🏷️ 𝑇𝑎𝑔𝑠</span>
+            </a>
+        </div>
+        
+        
+        
+        <div class="mchocie description">
+            <a data-pjax href="http://ElioKw.tk" class="menubutton" style="margin-right: 15px;">
+                <i><img class="icon menuicon" src="" alt="🌏𝑂𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝐷𝑒𝑠𝑘𝑡𝑜𝑝"></i>&nbsp;<span
+                    data-text="🌏𝑂𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝐷𝑒𝑠𝑘𝑡𝑜𝑝">🌏𝑂𝑝𝑒𝑟𝑎𝑡𝑖𝑜𝑛 𝐷𝑒𝑠𝑘𝑡𝑜𝑝</span>
+            </a>
+        </div>
+        
+        
+
+        
+        
+        
+        <!--  -->
+    </div>
+    <!------------ 加载菜单按钮👆 ------------------------->
+    <hr>
+    <style>
+    .copyright {
+        font-size: 15px;
+        color: #d9d9d9;
+    }
+
+
+    @media screen and (min-width: 1200px) {
+        .foot {
+            width: 100%;
+            height: 130px;
+        }
+    }
+
+    @media screen and (max-width: 1200px) {
+        .foot {
+            display: none;
+        }
+    }
+</style>
+
+<body>
+    <div class="foot">
+        <div id="footinfo">Powered by <a href="https://github.com/ElioKw" target="_blank">Elio.Kw</a>
+<script src="//code.tidio.co/cf5v7y6ao83txn2ayaaeubqqqjqgt0n0.js" async></script> | Theme: <a
+                href="https://github.com/850552586/gridea-theme-fog">Fog</a>
+            <div>
+                
+            </div>
+            <div>
+                
+            </div>
+            <div class="copyright" style="color:white;text-align: center;">
+            </div>
+        </div>
+
+
+
+    </div>
+</body>
+
+    </div>
+
+    <img class="moon" src="https://eliokw.github.io/media/images/moon.png" onclick="moonlight()">
+    <script src="https://eliokw.github.io/media/js/wordshow.js"></script>
+    
+    <!--------------- 左侧菜单栏👆 ------------------------>
+
+    <!----------------- 顶部菜单栏👇 ------------------------>
+    
+    <!----------------- 顶部菜单栏👆 ------------------------>
+
+<!--核心功能加载-->
+<script src="https://eliokw.github.io/media/js/mainfunc.js"></script>
+
+<!------------- Fog1.0版本彩蛋👇 -------------->
+    <!-- <section id="terrestrial" class="popup">
+        <a href="#" class="back">&lt; back</a>
+    </section>
+
+    <div class="flycontainer">
+        <div class="flyword">御风飞行中...</div>
+    </div>
+
+    <script>
+        $("#fog_go").click(function(){fog_go()});
+        async function fog_go(){
+            $(".bars").hide()
+            $("#live2d").hide()
+            await sleep(3000);
+            $(".flycontainer").css("display","flex");
+            $(".popup").fadeOut(500)
+            await sleep(2000);
+            var sitename = "𝔼𝕝𝕚𝕠.𝕂𝕨";
+            getFogUser(sitename);
+        }
+
+        function fog_goregis(){
+            var sitename = "𝔼𝕝𝕚𝕠.𝕂𝕨";
+            var siteurl = "https://eliokw.github.io";
+            regisFogUser(sitename,siteurl);
+        }
+        fog_goregis();
+    </script> -->
+<!------------- Fog1.0版本彩蛋👆 -------------->
+<script>
+    function change_topmenu(){
+        tmcolor = "antiquewhite"
+        tsnamecolor = "antiquewhite"
+        $(".navbar-inverse .navbar-nav>li>a").css("color",tmcolor)
+        $(".navbar-inverse .navbar-brand").css("color",tsnamecolor)
+        $(".navbar-fixed-top").css("border-radius","0 0 10px 10px")
+    }
+</script>
+
+<!------ 根据自定义配置声明变量👇 --------------------->
+    
+    <script>
+        var postnumChoice = false
+    </script>
+    
+    
+    <script>
+        var shareChoice = false
+    </script>
+    
+    
+    <script>
+        var donateChoice = false
+    </script>
+    
+    
+    <script>
+        var searchChoice = true
+    </script>
+    
+    <script>let postsnum = 0;</script>
+    <div id="side-posttitle" style="display: none;">
+    
+    
+    📒 𝑁𝑒𝑡-𝐸𝑛𝑔𝑖𝑛𝑒𝑒𝑟 數據編碼 No.6
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    📒 𝑁𝑒𝑡-𝐸𝑛𝑔𝑖𝑛𝑒𝑒𝑟 傳輸介質 No.5
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    📒 𝑁𝑒𝑡-𝐸𝑛𝑔𝑖𝑛𝑒𝑒𝑟 信道延遲 No.4
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    📒 𝑁𝑒𝑡-𝐸𝑛𝑔𝑖𝑛𝑒𝑒𝑟 信道特性 No.3
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    📒 𝑁𝑒𝑡-𝐸𝑛𝑔𝑖𝑛𝑒𝑒𝑟 計算機網絡體系架構 No.2
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    📒 𝑁𝑒𝑡-𝐸𝑛𝑔𝑖𝑛𝑒𝑒𝑟 計算機網絡概論 No.1
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    🖥️Web安全 - 常見漏洞
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    🖥️HTTP超文本傳輸協議
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    🌃卯榫結構
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    🔗H3C《2021年網路安全漏洞態勢報告》
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    💁 值得？還是不值得🍣
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    🙋 𝐷𝑎𝑖𝑙𝑦 | 𝐴𝑐𝑎𝑑𝑒𝑚𝑖𝑐 𝑅𝑒𝑠𝑒𝑎𝑟𝑐ℎ 
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    
+    漏洞發展趨勢
+    <script>
+        postsnum += 1
+    </script>
+    
+    
+    </div>
+    
+        <script>
+            var menupos = 'left';
+            $("#siteinfo-postsnum").html(postsnum);
+        </script>
+    
+    <script>
+        let commentsHide = false
+    </script>
+    <!------ 根据自定义配置声明变量👆 --------------------->
+
+
+    <!----------根据自定义配置设置图标信息👇---------->
+    <script>
+        var icondict = new Array();
+    </script>
+    
+        
+    
+    <!----------根据自定义配置设置图标信息👆---------->
+</body>
+
+<script src="https://eliokw.github.io/media/share/dist/Share.js"></script>
+<!-- 页面pjax测试 -->
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.pjax/2.0.1/jquery.pjax.js"></script>
+<!--确保jQuery已经在此之前加载-->
+<!-- <script src="//cdn1.lncld.net/static/js/3.0.4/av-min.js"></script> -->
+<script src="https://eliokw.github.io/media/js/all-pjax.js"></script>
+<script>
+    //-------------------------------说说功能👇--------------------------------------
+    let talksall = [];
+    let talks = [];
+    let talkindex = 0;
+    get();
+
+    function get() {
+        var t = JSON.parse('[]');
+        talkindex = t.length - 1;
+        for (var i = 0; i <= t.length - 1; i++) {
+            var d = {};
+            d["time"] = t[i].time;
+            d["author"] = t[i].author;
+            d["text"] = t[i].text;
+            d["img"] = t[i].img;
+            talksall.push(d);
+        }
+    }
+
+    function add() {
+        for (var i = talkindex; i >= 0 && i > talkindex - 3; i--) {
+            talks.push(talksall[i]);
+        }
+        talkindex = (talkindex - 3) >= 0 ? (talkindex - 3) : -1;
+        if (talkindex < 0) $("#getmorebt").hide();
+        show();
+    }
+
+    function show() {
+        var talkT = document.getElementById("talkContainer");
+        talkT.innerHTML = "";
+        for (var i = 0; i < talks.length; i++) {
+            if (talks[i].img != '') {
+                talkT.innerHTML += '\
+            <div class="talk" v-for="t in talks"> \
+                <span data-fancybox="images" href="' + talks[i].img + '"><img src="' + talks[i].img + '" class="talkimg"></span> \
+                <div class="ainfo">\
+                    <div class="ainfo-intro">\
+                        <div class="author">' + talks[i].author + '</div>·\
+                        <div class="time">' + talks[i].time + '</div>\
+                    </div>\
+                </div>\
+                <div class="talkcontent">' + talks[i].text + '\
+                </div\>\
+            ';
+            } else {
+                talkT.innerHTML += '\
+            <div class="talk" v-for="t in talks"> \
+                <div class="ainfo">\
+                    <div class="ainfo-intro">\
+                        <div class="author">' + talks[i].author + '</div>·\
+                        <div class="time">' + talks[i].time + '</div>\
+                    </div>\
+                </div>\
+                <div class="talkcontent">' + talks[i].text + '\
+                </div\>\
+            ';
+            }
+        }
+    }
+    //-------------------------------说说功能👆--------------------------------------
+</script>
+
+<!---->
+<script>
+    function replaceAvatar() {
+        twikoo_avatar = $(".tk-avatar-img");
+        for (var i = 0; i < twikoo_avatar.length; i++) {
+            var asrc = twikoo_avatar.eq(i).attr('src');
+            if (asrc.search('cn.gravatar.com') != -1) {
+                twikoo_avatar.eq(i).attr('src', 'https://eliokw.github.io/media/images/comavatar.png');
+            }
+        }
+    }
+
+    function showWechat() {
+        var wechat = '';
+        alert("博主微信号：" + wechat);
+        return false;
+    }
+</script>
+
+<script>
+    /**
+     * https://github.com/tangkaichuan/gridea-search
+     */
+    // 检查缓存是否最新
+    function checkCache() {
+        var caches_postsnum = localStorage.getItem("postsnum");
+        var pt = document.getElementById("side-posttitle").innerHTML;
+        pt = pt.replace(/\s+/g, '').replace(/<script>.*?<\/script>/gi, "")
+        var ptlen = pt.length;
+        var ptlen_storage = localStorage.getItem("poststitlelen");
+        if (caches_postsnum != postsnum || ptlen != ptlen_storage) {
+            console.log("更新缓存");
+            return false
+        }
+        return true;
+    }
+
+    (function () {
+        var CACHES = checkCache()
+        if (!CACHES) {
+            var NOW = Date.now()
+            var API_CONTENT = '../api-content/index.html' + '?_=' + NOW
+            preload(API_CONTENT);
+            getContents(show_getContentresult);
+        }
+
+        function show_getContentresult(data) {
+            console.log("获取成功");
+            var postslen = data["posts"].length;
+            localStorage.setItem('postsnum', postslen);
+            var poststitlelen = 0;
+            var pt = document.getElementById("side-posttitle").innerHTML;
+            pt = pt.replace(/\s+/g, '').replace(/<script>.*?<\/script>/gi, "");
+            localStorage.setItem('poststitlelen', pt.length);
+        }
+
+
+
+        // preload
+        function preload(url) {
+            var preloadLink = document.createElement('link')
+            preloadLink.href = url
+            preloadLink.rel = 'preload'
+            preloadLink.as = 'fetch'
+            preloadLink.crossOrigin = 'anonymous'
+            document.head.appendChild(preloadLink)
+        }
+
+        // 异步 GET 请求
+        function get(obj) {
+            var xhr = new XMLHttpRequest()
+            xhr.open('get', obj.url, true)
+            xhr.send(null)
+            xhr.onreadystatechange = function () {
+                // 异步请求：响应状态为4，数据加载完毕
+                if (xhr.readyState === 4) {
+                    if (xhr.status === 200) {
+                        obj.success(xhr.responseText)
+                    } else {
+                        obj.error(xhr.status)
+                    }
+                }
+            }
+        }
+
+        // 获取博客全文 api
+        function getContents(callback) {
+            if (CACHES) {
+                callback(CACHES.contents)
+            } else {
+                get({
+                    url: API_CONTENT,
+                    success: function (data) {
+                        callback(JSON.parse(data));
+                        localStorage.setItem('ContentsCache', data);
+                        getStorageContent();
+                    }
+                })
+            }
+        }
+    })()
+    //------------------------核心功能--pjax全局渲染👇-------------------
+    let talkinit = false;
+    $(document).pjax('a[data-pjax]', '#main', {
+        fragment: '#main',
+        timeout: 8000
+    }).on('pjax:complete', function () {
+        //代码块高亮渲染
+        document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightBlock(block);
+        });
+        //文章热度
+        if(postnumChoice){
+            getHotnum();
+        }
+        //文章索引
+        toginit();
+        //清空搜索栏
+        if (searchChoice) {
+            searchInit();
+            searchInput.value = "";
+        }
+        var pl = window.location.pathname;
+        //说说更新
+        if (pl.search("talk") != -1 && !talkinit) {
+            add();
+            talkinit = true;
+        } else if (pl.search("talk") != -1) {
+            show();
+        }
+        if (pl.search("post") != -1) {
+            if (shareChoice)
+                shareInit();
+            if (donateChoice)
+                donateInit();
+            if ("default" == "default"&&!commentsHide) {
+                $("#comment").hide()
+                commentsHide = true
+            }
+            lazyload();
+            codeinit();
+            if ("default" == "twikoo") {
+                //twikoo头像更换
+                setTimeout(replaceAvatar, 3000);
+                setTimeout(replaceAvatar, 8000); //部分博主站点速度加载过慢，再添加一个延迟
+            }
+        }
+        if (btstate == true)
+            dropdown();
+    }).on('pjax:start', function () {
+        $(".pjaxloading").fadeIn(50);
+    }).on('pjax:end', function () {
+        $(".pjaxloading").fadeOut(50);
+    });
+    //------------------------核心功能--pjax全局渲染👆-------------------
+
+    //-------------------------------------------------搜索
+    // 获取搜索框、搜索按钮、清空搜索、结果输出对应的元素
+    if (searchChoice) {
+        var searchInput = document.querySelector('.search-input');
+        var searchResults = document.querySelector('.search-results');
+    }
+    // 申明保存文章的标题、链接、内容的数组变量
+    var searchValue = '',
+        arrItems = [],
+        arrLinks = [],
+        arrTitles = [],
+        arrContents = [],
+        arrResults = [],
+        indexItem = [],
+        itemLength = 0;
+    var tmpDiv = document.createElement('div');
+    tmpDiv.className = 'result-item';
+
+
+    function getStorageContent() {
+        var data = localStorage.getItem('ContentsCache');
+        data = JSON.parse(data);
+        posts = data["posts"];
+        for (var i = 0; i < posts.length; i++) {
+            arrLinks[i] = posts[i].link;
+            arrTitles[i] = posts[i].title;
+            arrContents[i] = posts[i].content;
+            itemLength++;
+        }
+    }
+    if (checkCache())
+        getStorageContent();
+    // 输入框内容变化后就开始匹配，可以不用点按钮
+    // 经测试，onkeydown, onchange 等方法效果不太理想，
+    // 存在输入延迟等问题，最后发现触发 input 事件最理想，
+    // 并且可以处理中文输入法拼写的变化
+    searchInput.oninput = function () {
+        setTimeout(searchConfirm, 0);
+    }
+    searchInput.onfocus = function () {
+        searchResults.style.display = 'block';
+    }
+
+    function searchConfirm() {
+        if (searchInput.value == '') {
+            searchResults.style.display = 'none';
+        } else if (searchInput.value.search(/^\s+$/) >= 0) {
+            // 检测输入值全是空白的情况
+            searchInit();
+            var itemDiv = tmpDiv.cloneNode(true);
+            itemDiv.innerText = '请输入有效内容...';
+            searchResults.appendChild(itemDiv);
+        } else {
+            // 合法输入值的情况
+            searchInit();
+            searchValue = searchInput.value;
+            // 在标题、内容中查找
+            searchMatching(arrTitles, arrContents, searchValue);
+        }
+    }
+
+    // 每次搜索完成后的初始化
+    function searchInit() {
+        arrResults = [];
+        indexItem = [];
+        searchResults.innerHTML = '';
+        searchResults.style.display = 'block';
+    }
+
+    function searchMatching(arr1, arr2, input) {
+        // 忽略输入大小写
+        input = new RegExp(input, 'i');
+        var step = 10;
+        // 在所有文章标题、内容中匹配查询值
+        for (i = 0; i < itemLength; i++) {
+            var indexContent = arr2[i].search(input);
+            //标题匹配
+            if (arr1[i].search(input) != -1) {
+                indexItem.push(i); // 保存匹配值的索引
+                if (indexContent != -1) {
+                    startindex = (indexContent - step) >= 0 ? (indexContent - step) : 0;
+                    var searchcontent = arr2[i].slice(indexContent - step, indexContent + 5)
+                    arrResults.push("....." + searchcontent + ".....");
+                } else
+                    arrResults.push("");
+            }
+            //内容匹配
+            else if (indexContent != -1) {
+                indexItem.push(i); // 保存匹配值的索引
+
+                startindex = (indexContent - step) >= 0 ? (indexContent - step) : 0;
+                var searchcontent = arr2[i].slice(indexContent - step, indexContent + 5)
+                arrResults.push("....." + searchcontent + ".....");
+            }
+        }
+
+        // 输出总共匹配到的数目
+        var totalDiv = tmpDiv.cloneNode(true);
+        totalDiv.innerHTML = '<b>总匹配：' + indexItem.length + ' 项<hr></b>';
+        searchResults.appendChild(totalDiv);
+
+        // 未匹配到内容的情况
+        if (indexItem.length == 0) {
+            var itemDiv = tmpDiv.cloneNode(true);
+            itemDiv.innerText = '未匹配到内容...';
+            searchResults.appendChild(itemDiv);
+        }
+
+        // 将所有匹配内容进行组合
+        for (i = 0; i < arrResults.length; i++) {
+            var itemDiv = tmpDiv.cloneNode(true);
+            itemDiv.innerHTML = '<a data-pjax class="searchresults" href="' + arrLinks[indexItem[i]] + '"><b>[' +
+                arrTitles[indexItem[i]] +
+                ']</b><p>' + arrResults[i] + '</p></a><hr />';
+            searchResults.appendChild(itemDiv);
+        }
+    }
+</script>
+
+
+
+<!--------------------- 菜单栏图标加载功能👇 ----------------------->
+<script>
+var menulist = $(".menuicon");
+var menulength = menulist.length;
+for (var i = 0; i < menulength; i++) {
+    var altname = menulist.eq(i).attr("alt");
+    var iconurl = icondict[altname];
+    if (iconurl == undefined || iconurl == '')
+        continue;
+    if (iconurl == 'Home') {
+        menulist.eq(i).attr("src", "https://eliokw.github.io/media/images/Home.png");
+menulist.eq(i).show();
+} else if (iconurl == 'Archive') {
+menulist.eq(i).attr("src", "https://eliokw.github.io/media/images/Archive.png");
+menulist.eq(i).show();
+} else if (iconurl == 'Tag') {
+menulist.eq(i).attr("src", "https://eliokw.github.io/media/images/Tag.png");
+menulist.eq(i).show();
+} else if (iconurl == 'About') {
+menulist.eq(i).attr("src", "https://eliokw.github.io/media/images/About.png");
+menulist.eq(i).show();
+} else if (iconurl == 'Talk') {
+menulist.eq(i).attr("src", "https://eliokw.github.io/media/images/Talk.png");
+menulist.eq(i).show();
+} else if (iconurl == 'Friends') {
+menulist.eq(i).attr("src", "https://eliokw.github.io/media/images/Friends.png");
+menulist.eq(i).show();
+} else if (iconurl == 'Fly') {
+menulist.eq(i).attr("src", "https://eliokw.github.io/media/images/wind.png");
+menulist.eq(i).show();
+} else {
+menulist.eq(i).attr("src", iconurl);
+menulist.eq(i).show();
+}
+}
+</script>
+<!--------------------- 菜单栏图标加载功能👆 ----------------------->
+
+<script>
+    //--------------------bber-onetalk加载👇--------------------------------
+    function bberonetalkLoad(){
+        bberjsonurl = '';
+        if ( $("#bber-talk").length > 0 ) {
+        jsonUrl = bberjsonurl
+        $.getJSON(jsonUrl+"?t="+Date.parse( new Date()),function(res){
+        var bberHtml = ''
+        $.each(res.data, function(i, item){
+            d = new Date(item.date)
+            date = d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate() +' '+d.getHours()+':'+d.getMinutes()+':'+d.getSeconds()
+            dataTime = '<span class="datatime">'+date+'</span>'
+            bberHtml += '<li class="item item-'+(i+1)+'">'+dataTime+'： <a data-pjax href="https://eliokw.github.io/bber">'+item.content+'</a></li>'
+        });
+        $('#bber-talk').append('<span class="index-talk-icon"><svg viewBox="0 0 1024 1024" width="21" height="21"><path d="M184.32 891.667692c-12.603077 0-25.206154-2.363077-37.809231-7.876923-37.021538-14.966154-59.864615-49.624615-59.864615-89.009231v-275.692307c0-212.676923 173.292308-385.969231 385.969231-385.969231h78.76923c212.676923 0 385.969231 173.292308 385.969231 385.969231 0 169.353846-137.846154 307.2-307.2 307.2H289.083077l-37.021539 37.021538c-18.904615 18.116923-43.323077 28.356923-67.741538 28.356923zM472.615385 195.347692c-178.018462 0-322.953846 144.935385-322.953847 322.953846v275.692308c0 21.267692 15.753846 29.144615 20.48 31.507692 4.726154 2.363077 22.055385 7.876923 37.021539-7.08923l46.473846-46.473846c6.301538-6.301538 14.178462-9.452308 22.055385-9.452308h354.461538c134.695385 0 244.184615-109.489231 244.184616-244.184616 0-178.018462-144.935385-322.953846-322.953847-322.953846H472.615385z"></path><path d="M321.378462 512m-59.076924 0a59.076923 59.076923 0 1 0 118.153847 0 59.076923 59.076923 0 1 0-118.153847 0Z"></path><path d="M518.301538 512m-59.076923 0a59.076923 59.076923 0 1 0 118.153847 0 59.076923 59.076923 0 1 0-118.153847 0Z"></path><path d="M715.224615 512m-59.076923 0a59.076923 59.076923 0 1 0 118.153846 0 59.076923 59.076923 0 1 0-118.153846 0Z"></path></svg></span><ul class="talk-list">'+bberHtml+'</ul>')
+        //Lately({ 'target': '#bber-talk .datatime' });
+        });
+        function Roll (){
+        var list_li = $('.talk-list li'),cur_li = list_li.first(),last_li = list_li.last();
+        last_li.after(cur_li);
+        };
+        setInterval(Roll,3000);
+    }
+    }
+  //--------------------bber-onetalk加载👆--------------------------------
+</script>
+
+<script>
+    var ClicksideState = 1
+    var cur_readingmode = false
+    function readingmode(){
+        if (!cur_readingmode){
+            if(menupos == 'left'){
+                if(ClicksideState==1)
+                menu_openclose1()
+            }
+            $("#tab1").fadeOut(50)
+            $("#bg").fadeOut(50)
+            $(".navbar").fadeOut(50)
+            $(".markdownIt-TOC li a").css("color","black")
+            cur_readingmode = true
+        }else{
+            if(menupos == 'left'){
+                if(ClicksideState==0)
+                    menu_openclose1()
+            }
+            $("#tab1").fadeIn(50)
+            $("#bg").fadeIn(50)
+            $(".navbar").fadeIn(50)
+            $(".markdownIt-TOC li a").css("color","antiquewhite")
+            cur_readingmode = false  
+        }
+    }
+</script>
+
+
+<!----夜间模式👇-->
+<script>
+    var moonlightState = false
+    function moonlight(){
+        if(!moonlightState){
+            $("#bg").fadeOut(200)
+            $('body').css("background","rgba(0,0,0,0.8)")
+            $(".markdownIt-TOC li a").css("color","white")
+            $(".text p, .text ul").css("color","white")
+            $("#articlecontent").css("color","white")
+            $(".post-copyright").css("background","rgba(10,10,10,0.5)")
+            $('blockquote').css("background","rgba(10,10,10,0.6)")
+            $("#articlecontent").css("background","rgba(10,10,10,0.5)")
+            moonlightState = true
+            $(".moon").attr("src","https://eliokw.github.io/media/images/sun.png")
+        }else{
+            $("#bg").show()
+            $(".markdownIt-TOC li a").css("color","antiquewhite")
+            $(".text p, .text ul").css("color","rgba(0, 0, 0, 0.7)")
+            $("#articlecontent").css("color","black")
+            $(".post-copyright").css("background","#f9f9f9")
+            $('blockquote').css("background","#eff8f0")
+            $("#articlecontent").css("background","white")
+            $(".moon").attr("src","https://eliokw.github.io/media/images/moon.png")
+            $('body').css("background","white")
+            moonlightState = false
+        }
+    }
+</script>
+<!----夜间模式👆--></div>
+            <!--------------- pc端菜单栏👆 ---------------->
+
+            <!-- ----------------左侧菜单栏html 👇-------------------------------------->
+            
+            <div>
+                <div id="tab1" class="tab">
+                    <div class="bars">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <div class="close"></div>
+                </div>
+                <div class="col-md-1 col-lg-3"></div>
+                <!-- main标签，pjax渲染时加载以下内容👇 -->
+                <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-7" style="padding:0;">
+                    <div class="readingmode" onclick="readingmode()">阅</div>
+                    <link rel="stylesheet" href="https://eliokw.github.io/media/css/font-awesome.css">
+
+<body>
+    <div class="allcontent" id="postdetail">
+        <div class="postshow postpadding" style="padding-bottom: 0;">
+            
+            <div class="postdetailimg">
+                <img src="https://s1.ax1x.com/2022/05/08/O3FOT1.png" class="postimage" style="cursor:auto">
+            </div>
+            <div class="postinfo-detail">
+                <div class="postdate"><i class="fa fa-calendar"></i>2022-06-07</div>
+                <div class="poststatus postdate"><i class="fa fa-clock-o"></i> 14 min read</div>
+                <div class="posttag">
+                    
+                    <a data-pjax href="https://eliokw.github.io/tag/nP8l-nwCO/" class="postlink">
+                        <i class="fa fa-tag"></i> Net-Security
+                    </a>
+                    
+                </div>
+            </div>
+            
+        <div id="articlecontent">
+            <div id="texttitle" style="text-align: center">
+                <h2 id="ptitle">🖥️Web安全 - 常見漏洞</h2>
+                <!-- id 将作为查询条件 -->
+                <div id="pl" style="display:none">https://eliokw.github.io/post/Net-Sec-2/</div>
+                <div id="rootaddr" style="display:none">https://eliokw.github.io</div>
+                
+            </div>
+            <div class="text ">
+                <h3>一、暴力破解</h3>
+<h4>1、概述</h4>
+​ 「暴力破解」是一攻擊具手段，在web攻擊中，一般會使用這種手段對應用系統的認證信息進行獲取。其過程就是使用大量的認證信息在認證接口進行嘗試登錄，直到得到正確的結果。為了提高效率，暴力破解一般會使用帶有字典的工具來進行自動化操作。</br>
+理論上來說，大多數系統都是可以被暴力破解的，只要攻擊者有足夠強大的計算能力和時間，所以斷定一個系統是否存在暴力破解漏洞，其條件也不是絕對的。我們說一個web應用系統存在暴力破解漏洞，一般是指該web應用系統沒有采用或者采用了比較弱的認證安全策略，導致其被暴力破解的「可能性」變的比較高。</br>
+<h4>2、基於表單的暴力破解</h4>
+​ 條件：用戶沒有任何安全驗證，可直接抓包進行暴力破解。</br>
+<h4>3、驗證碼繞過</h4>
+<p><a href="https://imgtu.com/i/O3kKXQ"><img src="https://s1.ax1x.com/2022/05/08/O3kKXQ.png" alt="O3kKXQ.png" border="0" /></a></p>
+<p>驗證碼繞過（on server）：驗證碼校驗在服務端完成，但是驗證碼存在時效性，這個時候我們可以在這個時效內進行抓包實現短時間內的驗證碼繞過。</br><br>
+​ 驗證碼繞過（on client）：在前端進行驗證碼的校驗，這個時候駛入正確的驗證碼提交，進行抓包後，我們通過修改密碼和賬號發現我們不需要再對驗證碼進行修改，從而繞過了驗證碼，實現暴力破解。</br></p>
+<h4>4、token防爆破？</h4>
+<p><a href="https://imgtu.com/i/O3krA1"><img src="https://s1.ax1x.com/2022/05/08/O3krA1.png" alt="O3krA1.png" border="0" /></a></p>
+<p>由於token值輸出在了前端的源碼中，容易被獲取，因此也就失去了防爆破的意義。我們可以在每次暴力破解的過程中獲取到前端頁面生成的token的值，從而實現暴力破解。</br></p>
+<h4>5、安全策略</h4>
+​ 1.是否要求用戶設置復雜的密碼；</br>
+​ 2.是否每次認證都使用安全的驗證碼（想想你買火車票時輸的驗證碼～）或者手機app；</br>
+​ 3.是否對嘗試登錄的行為進行判斷和限製（如：連續5次錯誤登錄，進行賬號鎖定或IP地址鎖定等）；</br>
+​ 4.是否采用了雙因素認證；</br>
+<h3>二、XSS</h3>
+<h4>1、基本概念和原理介紹</h4>
+跨站點腳本攻擊，指攻擊者通過篡改網頁，嵌入惡意腳本程序，在用戶瀏覽網頁時，控製用戶瀏覽器進行惡意操作的一種攻擊方式。</br>
+Cross-Site Scripting 簡稱為「CSS」，為避免與前端疊成樣式表的縮寫"CSS"沖突，故又稱XSS。一般XSS可以分為如下幾種常見類型：</br>
+1.反射性XSS</br>
+交互的數據一般不會被存在在數據庫裏面，一次性，所見即所得，一般出現在查詢</br>
+​ 2.存儲型XSS</br>
+交互的數據會被存在在數據庫裏面，永久性存儲，一般出現在留言板，註冊等頁面。</br>
+3.DOM型XSS</br>
+不與後臺服務器產生數據交互，是一種通過DOM操作前端代碼輸出的時候產生的問題，一次性也屬於反射型。</br>
+<p><a href="https://imgtu.com/i/O3kfnH"><img src="https://s1.ax1x.com/2022/05/08/O3kfnH.png" alt="O3kfnH.png" border="0" /></a></p>
+<p>形成原因<br>
+形成xss漏洞的主要原因是程序對輸入輸出的控製不夠嚴格，導致「精心設計」的腳本輸入後，在輸出到前端時被瀏覽器當作有效代碼執行從而產生危害。</br></p>
+<h4>2、跨站腳本漏洞測試流程</h4>
+（1）在目標站點上找到輸入點，比如查詢接口，留言板等。</br>
+（2）輸入一組"特殊字符+唯一識別字符"，點擊提交後，查看返回的源碼，是否有做對應的處理。</br>
+（3）通過搜索定位唯一字符，結合唯一字符前後語法確認是否可以執行js的條件（構造閉合）。</br>
+（4）提交構造的腳本代碼（以及各種繞過姿勢），看是否可以成功執行，如果成功執行則說明存在現在xss漏洞；</br>
+TIPS：</br>
+（1）一般查詢接口容易出現反射型xss，留言板容易出現存儲型xss；</br>
+（2）由於後臺可能存在過濾措施，構成的script可能會被過濾掉，二無法生效，或者環境限製了執行（瀏覽器）。</br>
+（3）通過變化不同的script，嘗試繞過後臺過濾機製。</br>
+<h4>3、安全策略</h4>
+（1）輸入時：嚴格過濾單引號，雙引號，尖括號。</br>
+​ 記住一點：不要相信任何輸入的內容。例如用戶名只能以字母和數字組合，手機號碼只能有 11 位且全部為數字，否則即為非法。這些格式檢查類似於白名單效果，限製輸入允許的字符，讓一下特殊字符的攻擊失效。</br>
+（2）輸出時：對單引號，雙引號，尖括號等轉化為HTML實體。</br>
+<h3>三、csrf</h3>
+<h4>1、原理</h4>
+​ CSRF（Cross-Site Request Forgery，跨站點偽造請求）是一種網絡攻擊方式，該攻擊可以在受害者毫不知情的情況下以受害者名義偽造請求發送給受攻擊站點，從而在未授權的情況下執行在權限保護之下的操作，具有很大的危害性。</br>
+<h4>2、如何確認一個web系統純在CRSF漏洞</h4>
+（1）對目標網站增刪查改的地方進行標記，並觀察其邏輯，判斷是否可以被偽造</br>
+–比如修改管理員賬號時，並不需要驗證舊密碼，導致請求容易被偽造；</br>
+–比如對於敏感信息的修改並沒有使用安全的token驗證，導致請求容易被偽造；</br>
+（2）確認憑證的有效日期（這個問題會提高CRSF被利用的概率）</br>
+–雖然退出並關閉了瀏覽器，但cookie仍然有效，或者session並沒有及時過期，導致CRSF攻擊變的簡單。</br>
+<h4>3、防禦措施</h4>
+（1）驗證HTTP Referer字段</br>
+（2）在請求地址中添加token並驗證，後端生成token發送到前端，前端提交到後端在進行驗證。</br>
+（3）在HTTP頭中自定義屬性並驗證</br>
+（4）在服務端區嚴格區分好POST與GET的數據請求（建議不要使用GET請求進行持久性操作）</br>
+（5）使用驗證碼或者密碼確認方式進行</br>
+<h3>四、SQL註入</h3>
+<h4>1、概述</h4>
+<h4>2、形成原因</h4>
+什麽是SQL註入攻擊</br>
+攻擊者在HTTP請求中註入惡意的SQL代碼，服務器使用參數構建數據庫SQL命令時，惡意SQL被一起構造，並在數據庫中執行。</br>
+用戶登錄，輸入用戶名 lianggzone，密碼 ‘ or ‘1’=’1 ，如果此時使用參數構造的方式，就會出現</br>
+select * from user where name = ‘lianggzone’ and password = ‘’ or ‘1’=‘1’</br>
+不管用戶名和密碼是什麽內容，使查詢出來的用戶列表不為空。如何防範SQL註入攻擊使用預編譯的PrepareStatement是必須的，但是一般我們會從兩個方面同時入手。</br>
+Web端</br>
+1）有效性檢驗。</br>
+2）限製字符串輸入的長度。</br>
+服務端</br>
+1）不用拼接SQL字符串。</br>
+2）使用預編譯的PrepareStatement。</br>
+3）有效性檢驗。(為什麽服務端還要做有效性檢驗？第一準則，外部都是不可信的，防止攻擊者繞過Web端請求)</br>
+4）過濾SQL需要的參數中的特殊字符。比如單引號、雙引號。</br>
+<h3>五、RCE</h3>
+<h4>1、RCE(remote command/code execute)概述</h4>
+RCE漏洞，可以讓攻擊者直接向後臺服務器遠程註入操作系統命令或者代碼，從而控製後臺系統。</br>
+遠程系統命令執行</br>
+​ 一般出現這種漏洞，是因為應用系統從設計上需要給用戶提供指定的遠程命令操作的接口。</br>
+​ 比如我們常見的路由器、防火墻、入侵檢測等設備的web管理界面上一般會給用戶提供一個ping操作的web界面，用戶從web界面輸入目標IP，提交後，後臺會對該IP地址進行一次ping測試，並返回測試結果，而，如果設計者在完成該功能時，沒有做嚴格的安全控製，則可能會導致攻擊者通過該接口提交「意想不到」的命令，從而讓後臺進行執行，從而控製整個後臺服務器。</br>
+​ 比如：127.0.0.1 & ipconfig</br>
+​ 現在很多的甲方企業都開始實施自動化運維,大量的系統操作會通過"自動化運維平臺"進行操作。在這種平臺上往往會出現遠程系統命令執行的漏洞,不信的話現在就可以找你們運維部的系統測試一下,會有意想不到的"收獲"。</br>
+shell_exec() 用於執行用戶傳輸的命令</br>
+遠程代碼執行</br>
+	 同樣的道理,因為需求設計,後臺有時候也會把用戶的輸入作為代碼的一部分進行執行,也就造成了遠程代碼執行漏洞。不管是使用了代碼執行的函數,還是使用了不安全的反序列化等等。</br>
+	 因此，如果需要給前端用戶提供操作類的API接口，一定需要對接口輸入的內容進行嚴格的判斷，比如實施嚴格的白名單策略會是一個比較好的方法。</br>
+eval() 用於執行用戶傳輸的代碼</br>
+<h3>六、文件包含漏洞</h3>
+<h4>1、概述</br></h4>
+​ 文件包含，是一個功能。在各種開發語言中都提供了內置的文件包含函數，其可以使開發人員在一個代碼文件中直接包含（引入）另外一個代碼文件。</br>
+	 比如 在PHP中，提供了：</br>
+	 include(),include_once()</br>
+	 require(),require_once()</br>
+	 include和require語法是相同的，除了錯誤處理方面：</br>
+require會生成指明錯誤（E_COMPLIE_ERROR）並停止腳本；</br>
+include只會生成警告（E_WARNING），並且腳本會繼續；</br>
+​ 這些文件包含函數，這些函數在代碼設計中被經常使用到。</br>
+​ 大多數情況下，文件包含函數中包含的代碼文件是固定的，因此也不會出現安全問題。但是，有些時候，文件包含的代碼文件被寫成了一個變量，且這個變量可以由前端用戶傳進來，這種情況下，如果沒有做足夠的安全考慮，則可能會引發文件包含漏洞。 攻擊著會指定一個「意想不到」的文件讓包含函數去執行，從而造成惡意操作。根據不同的配置環境，文件包含漏洞分為如下兩種情況：</br>
+	 **1.本地文件包含漏洞：**僅能夠對服務器本地的文件進行包含，由於服務器上的文件並不是攻擊者所能夠控製的，因此該情況下，攻擊著更多的會包含一些固定的系統配置文件，從而讀取系統敏感信息。很多時候本地文件包含漏洞會結合一些特殊的文件上傳漏洞，從而形成更大的威力。</br>
+	 防護措施：設置白名單（if函數用"||"的方式設置）</br>
+	 **2.遠程文件包含漏洞：**能夠通過url地址對遠程的文件進行包含，這意味著攻擊者可以傳入任意的代碼，這種情況沒啥好說的，準備掛彩。因此，在web應用系統的功能設計上盡量不要讓前端用戶直接傳變量給包含函數，如果非要這麽做，也一定要做嚴格的白名單策略進行過濾。</br>
+​ 前提：需要php.ini配置如下</br>
+allow_url_fopen = on //默認打開</br>
+Allow_url_include = on //默認關閉</br>
+	 危害：可直接傳輸比如一句話木馬等文件，導致客戶機被控製。</br>
+<h4>2、防範措施</h4>
+（1）在功能設計上盡量不要將文件包含函數對應的文件放給全段進行選擇和操作；</br>
+（2）過濾各種…/…/, http:// , https://</br>
+（3）配置php.ini配置文件</br>
+​ allow_url_fopen=off</br>
+	 allow_url_include=off</br>
+​ magic_quotes_gpc=on //gpc在</br>
+（4）通過白名單策略，進允許包含運行指定的文件，其他的都禁止；</br>
+<h3>七、不安全的文件下載和文件上傳</h3>
+<h4>1、文件下載</h4>
+​ 很多網站都會提供文件下載的功能，即用戶可以點擊下載鏈接，下載到鏈接所對應的文件。但是如果文件下載功能不當，則可能導致攻擊者可以通過構造文件路徑，從未獲取到後臺服務器上的其他敏感文件（又稱：任意文件下載）。</br>
+防範措施</br>
+（1）對傳入的文件名進行嚴格的過濾和限定</br>
+（2）對文件下載的目錄進行嚴格的限定</br>
+<h4>2、文件上傳</h4>
+因為業務功能需求，很多web站點都有文件上傳的接口，比如：</br>
+（1）註冊時上傳頭像圖片（比如jpg，png，gif等）；</br>
+（2）上傳文件附件（doc，xsl等）；</br>
+而在後臺開發時並沒有對文件上傳的文件功能進行安全考慮或者采用了有缺陷的措施，導致攻擊者可以通過一些手段繞過安全措施從而上傳一些惡意文件（如：一句話木馬）。從而通過對該惡意文件的訪問；來控製整個web後臺。</br>
+<h4>3、文件上傳漏洞測試流程</h4>
+（1）對文件上傳的地方按照要求上傳文件，查看返回結果（路徑，提示等）</br>
+（2）嘗試上傳不同類型的"惡意"文件，比如xx.php文件，分析結果；</br>
+（3）查看html源碼，看是否通過js在前端做了上傳限製，可以繞過；</br>
+（4）嘗試使用不同的方式進行繞過；黑白名單繞過/MIME類型繞過/目錄0x00截斷繞過等；</br>
+（5）猜測或者結合其他漏洞（比如敏感信息泄露）得到木馬路徑，連接測試</br>
+<h4>防範措施</h4>
+（1）不在前端使用js實施上傳策略</br>
+（2）通過服務器對文件上傳進行限製</br>
+進行多條組合檢查：比如文件的大小，路徑，拓展名，文件類型，文件完整性，或者設置文件後綴白名單。</br>
+對上傳的文件在服務器存儲是進行重命名（指定合理的命名規則）</br>
+對服務器上傳文件的目錄進行權限控製（比如只讀），限製執行去權限帶來的危害。</br>
+<h3>八、越權漏洞</h3>
+	 由於沒有對用戶權限進行嚴格判斷，導致低權限的賬戶（比如普通用戶）可以去完成高權限賬號（比如超級管理員）範圍內的操作。</br>
+<h4>1、水平越權</h4>
+	 A用戶和B用戶屬於同一級別用戶，但各自不能操作對方個人信息，A用戶如果越權操作B用戶的個人信息的情況稱為平行越權操作。</br>
+<h4>2、垂直越權</h4>
+	 A用戶權限高於B用戶，B用戶越權操作A用戶權限的情況稱為垂直越權。</br>
+<h4>3、修復建議</h4>
+驗證一切來自客戶端的參數，重點是和權限相關的參數，比如用戶ID或者角色權限ID等。</br>
+session ID 和認證的token做綁定，放在服務器的會話裏，不發送給客戶端。</br>
+對於用戶登錄後涉及用戶唯一信息的請求，每次都要驗證檢查所有權，敏感信息頁面加隨機數的參數，防止瀏覽器緩存內容。</br>
+把程序分成匿名，授權和管理的區域，通過將角色和數據功能匹配。</br>
+不適用參數來區分管理員和普通用戶。</br>
+
+            </div>
+            <hr style="width: 80%;">
+            
+            <div class="postfooter">
+                <ul class="post-copyright">
+                    <li><strong>文章作者：</strong>👨‍💻𝔼𝕝𝕚𝕠.𝕂𝕨</li>
+            <li><strong>原文链接：</strong>https://eliokw.github.io/post/Net-Sec-2/</li>
+            <li><strong>版权声明：</strong>本博客所有文章除特别声明外，均采用<i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA
+                许可协议。转载请注明出处！</li>
+            </ul>
+        </div>
+        
+        <div id="otherpost">
+            
+            <a  data-pjax class="prev-post-pc" href="https://eliokw.github.io/post/Net-Engineer-1/"  style="color: black;">
+                <div id="ppcontainer">
+                    
+                    <img src="https://s1.ax1x.com/2022/10/20/x6A6tP.jpg" style="width: 100%;" class="opimg">
+                    
+                    <h4 class="optitle">📒 𝑁𝑒𝑡-𝐸𝑛𝑔𝑖𝑛𝑒𝑒𝑟 計算機網絡概論 No.1</h4>
+                </div>
+            </a>
+            <div class="prev-post">
+                上一篇 <a  data-pjax href="https://eliokw.github.io/post/Net-Engineer-1/">📒 𝑁𝑒𝑡-𝐸𝑛𝑔𝑖𝑛𝑒𝑒𝑟 計算機網絡概論 No.1</a>
+            </div>
+            
+            
+            <a data-pjax class="next-post-pc" href="https://eliokw.github.io/post/Net-Sec-1/"  style="color: black;">
+                <div id="npcontainer">
+                    
+                    <img src="https://s1.ax1x.com/2022/05/08/O3ASNq.png" style="width: 100%;" class="opimg">
+                    
+                    <h4 class="optitle">🖥️HTTP超文本傳輸協議</h4>
+                </div>
+            </a>
+            <div class="next-post">
+                下一篇 <a  data-pjax href="https://eliokw.github.io/post/Net-Sec-1/">🖥️HTTP超文本傳輸協議</a>
+            </div>
+            
+        </div>
+    </div>
+    </div>
+    </div>
+    <!-- 弹窗 -->
+    <div id="myModal" class="modal">
+        <img class="modal-content" id="img01">
+    </div>
+</body>
+<script>
+    //文章阅读热度
+    var pl = $("#pl").html();
+    var rootaddr = $("#rootaddr").html();
+    pl = pl.replace(rootaddr, "");
+    $("#hotnum").attr('id', pl);
+</script>
+                    <div class="toc-container">
+                        
+                    </div>
+                    <div class="tog">
+                        <div class="toggleContainer">
+                            <div class="toggle">
+                                <i class="fas fa-angle-double-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <!---------------------------- 评论系统👇 ------------------------->
+                    <div id="comment" class="comment">
+                        <div class="commentcontainer">
+                            
+                                
+                            
+                        </div>
+                    </div>
+                    <!---------------------------- 评论系统👆 ------------------------->
+                </div>
+                <!-- main标签，pjax渲染时加载以上内容👆 -->
+                <div class="col-md-1 col-lg-2"></div>
+                <div id="bg">
+                </div>
+            </div>
+            <!-- ----------------左侧菜单栏html 👆-------------------------------------->
+            
+        </div>
+        <!-- aplayer播放器加载👇 -->
+            
+        <!-- aplayer播放器加载👆 -->
+    </div>
+    <!-- 背景图加载方式👇 -->
+    <div id="bgchoice" style="display: none">link
+                </div>
+                
+                <div id="bgurl" style="display:none">https://s1.ax1x.com/2022/05/08/O3do90.png</div>
+                
+    <!-- 背景图加载方式👆 -->
+</body>
+
+<script>
+    //初始化
+    //更换twikoo头像
+    setTimeout(replaceAvatar,1000);
+    setTimeout(replaceAvatar,2000);
+    setTimeout(replaceAvatar,8000);
+    // --------为每张图片添加懒加载（lazyload）标签-->懒加载功能 👇------------
+    lazyload();
+    //为文章内所有代码块添加代码复制功能 👇
+    codeinit();
+    // ------代码高亮显示功能-------------
+    hljs.initHighlightingOnLoad();
+    if (shareChoice)
+        shareInit();
+    if (donateChoice)
+        donateInit();
+</script>
+
+<!------------------ 加载live2d模型功能（看板娘）👇 ---------------->
+
+<script type="text/javascript">
+    var message_Path = '/live2d/'
+    var home_Path = document.getElementById("domainname").innerHTML + "/"; //此处修改为你的域名，必须带斜杠
+</script>
+<script type="text/javascript" src="https://eliokw.github.io/media/js/live2d.js"></script>
+<script type="text/javascript" src="https://eliokw.github.io/media/live2d/js/message.js"></script>
+<script type="text/javascript">
+    loadlive2d("live2d", "https://eliokw.github.io/media/live2d/assets/tororo.model.json");
+</script>
+
+<!------------------ 加载live2d模型功能（看板娘）👆 ---------------->
+
+
+<!----------------------- 返回顶部按钮功能👇 --------------------->
+<script>
+    $(function () {
+        $('.toggleContainer').click(function () {
+            $('html,body').animate({
+                scrollTop: '0px'
+            }, 800);
+        });
+        $(window).scroll(function () {
+            var st = $(window).scrollTop();
+            if (st > 30) {
+                $(".toggleContainer").fadeIn(400);
+            } else {
+                $(".toggleContainer").fadeOut(100);
+            }
+        });
+    });
+</script>
+<!----------------------- 返回顶部按钮功能👆 --------------------->
+
+
+<!------------ 加载全局背景图功能👇（开始时没有写好，这功能有点鸡肋/(ㄒoㄒ)/~~） -->
+<script>
+    var bgchoice = "link"
+    var bg = $('#bg');
+    var bgurl = document.getElementById("bgurl").innerHTML;
+    if (bgchoice == 'default')
+    {
+        for (var i = 0; i < 3; i++)
+            bgurl = bgurl.replace("\\", "/");
+        bgurl = "https://eliokw.github.io/" + bgurl;
+    }
+    bg.css("background", "url('" + bgurl + "')");
+
+    window.onload = function () {
+        aplayerbtnInit();
+    }
+</script>
+<!------------ 加载全局背景图功能👆（开始时没有写好，这功能有点鸡肋/(ㄒoㄒ)/~~） -->
+
+
+
+
+<script src="https://eliokw.github.io/media/js/index.js"></script>
+
+
+<script>
+    //加载后的事件同步（阅读量、移动端评论等
+    window.onload = function () {
+    //代码块高亮渲染
+    document.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightBlock(block);
+    });
+        getHotnum();
+        var sharepc = $(".share").eq(0).html();
+        $(".share").eq(1).html(sharepc);   //插件只会寻找一个分享标签渲染，所以需要手动添加到移动端
+        aplayerbtnInit();
+        $(".hljs").css({
+            "padding": "20px"
+        })
+    }
+</script>
+
+<!-- <script src="https://eliokw.github.io/media/js/av-min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@3.13.0/dist/av-min.js"></script> -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.6.1/dist/av-live-query-min.js"></script> -->
